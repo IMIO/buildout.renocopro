@@ -9,7 +9,7 @@ RUN buildDeps="python-pip build-essential libpq-dev libreadline-dev wget git gcc
   && apt-get update \
   && apt-get install -y --no-install-recommends $buildDeps \
   && pip install pip==$PIP \
-  && git clone -b plone5 https://github.com/IMIO/${repo}.git ${repo} \
+  && git clone -b master https://github.com/IMIO/${repo}.git ${repo} \
   && cd /home/imio/${repo} \
   && pip install -r requirements.txt \
   && buildout -t 25 -c prod.cfg \
