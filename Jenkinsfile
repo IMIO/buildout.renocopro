@@ -1,4 +1,5 @@
 @Library('jenkins-pipeline-scripts') _
+
 pipeline {
     agent none
     triggers {
@@ -6,7 +7,7 @@ pipeline {
     }
     options {
         // Keep the 50 most recent builds
-        buildDiscarder(logRotator(numToKeepStr:'50'))
+        buildDiscarder(logRotator(numToKeepStr:'30'))
     }
     stages {
         stage('Build') {
@@ -20,8 +21,38 @@ pipeline {
             steps {
                 pushImageToRegistry (
                     env.BUILD_ID,
-                    "iasmartweb/renocopro"
+                    'renocopro/mutual'
                 )
+            }
+        }
+        stage('Deploy to staging') {
+            agent any
+            when {
+                expression {
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
+            }
+            steps {
+                sh "mco shell run 'docker pull docker-staging.imio.be/renocopro/mutual:$BUILD_ID' -I /^staging.imio.be/"
+                sh "mco shell run 'systemctl restart renocopro.service' -I /^staging.imio.be/"
+            }
+        }
+        stage('Deploy to prod') {
+            agent any
+            when {
+                expression {
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
+            }
+            steps {
+                sh "docker pull docker-staging.imio.be/renocopro/mutual:$BUILD_ID"
+                sh "docker tag docker-staging.imio.be/renocopro/mutual:$BUILD_ID docker-prod.imio.be/renocopro/mutual:$BUILD_ID"
+                sh "docker tag docker-staging.imio.be/renocopro/mutual:$BUILD_ID docker-prod.imio.be/renocopro/mutual:latest"
+                sh "docker push docker-prod.imio.be/renocopro/mutual"
+                sh "docker rmi docker-staging.imio.be/renocopro/mutual:$BUILD_ID"
+                sh "docker rmi docker-prod.imio.be/renocopro/mutual:latest"
+                sh "docker rmi docker-prod.imio.be/renocopro/mutual:$BUILD_ID"
+                sh "mco shell run 'docker pull docker-prod.imio.be/renocopro/mutual:$BUILD_ID' -I /^renocopro.imio.be/"
             }
         }
     }
