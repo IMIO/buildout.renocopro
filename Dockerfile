@@ -12,7 +12,7 @@ RUN buildDeps="python-pip build-essential libpq-dev libreadline-dev wget git gcc
   && git clone -b master https://github.com/IMIO/${repo}.git ${repo} \
   && cd /home/imio/${repo} \
   && pip install -r requirements.txt \
-  && buildout -t 25 -c prod.cfg \
+  && buildout -t 90 -c prod.cfg \
   && cd /home/imio/ \
   && rm -rf ${repo} \
   && rm -rf /home/imio/.buildout/downloads/ /var/lib/apt/lists/* /tmp/* /var/tmp/* /home/imio/.cache /home/imio/.local \
