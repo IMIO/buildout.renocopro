@@ -33,11 +33,11 @@ pipeline {
                 }
             }
             steps {
-                sh "mco shell run 'docker pull docker-staging.imio.be/renocopro/mutual:$BUILD_ID' -I /^staging.imio.be/"
-                sh "mco shell run 'systemctl restart renocopro.service' -I /^staging.imio.be/"
+                echo "mco shell run 'docker pull docker-staging.imio.be/renocopro/mutual:$BUILD_ID' -I /^staging.imio.be/"
+                echo "mco shell run 'systemctl restart renocopro.service' -I /^staging.imio.be/"
             }
         }
-        stage('Deploy to prod') {
+        stage('Deploy to prod ?') {
             agent any
             when {
                 expression {
@@ -52,7 +52,7 @@ pipeline {
                 sh "docker rmi docker-staging.imio.be/renocopro/mutual:$BUILD_ID"
                 sh "docker rmi docker-prod.imio.be/renocopro/mutual:latest"
                 sh "docker rmi docker-prod.imio.be/renocopro/mutual:$BUILD_ID"
-                sh "mco shell run 'docker pull docker-prod.imio.be/renocopro/mutual:$BUILD_ID' -I /^renocopro.imio.be/"
+                echo "mco shell run 'docker pull docker-prod.imio.be/renocopro/mutual:$BUILD_ID' -I /^renocopro.imio.be/"
             }
         }
     }
