@@ -2,9 +2,6 @@
 
 pipeline {
     agent none
-    triggers {
-        pollSCM('*/3 * * * *')
-    }
     options {
         // Keep the 50 most recent builds
         buildDiscarder(logRotator(numToKeepStr:'30'))
@@ -46,6 +43,9 @@ pipeline {
                     )
                 }
             }
+        }
+        stage('Deploying to prod') {
+            agent any
             steps {
                 sh "docker pull docker-staging.imio.be/renocopro/mutual:$BUILD_ID"
                 sh "docker tag docker-staging.imio.be/renocopro/mutual:$BUILD_ID docker-prod.imio.be/renocopro/mutual:$BUILD_ID"
