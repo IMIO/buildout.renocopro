@@ -38,10 +38,12 @@ pipeline {
             }
         }
         stage('Deploy to prod ?') {
-            agent any
-            when {
-                expression {
-                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+            agent none
+            steps {
+                timeout(time: 24, unit: 'HOURS') {
+                    input (
+                        message: 'Should we deploy to prod, service will restart with downtime?'
+                    )
                 }
             }
             steps {
@@ -52,7 +54,8 @@ pipeline {
                 sh "docker rmi docker-staging.imio.be/renocopro/mutual:$BUILD_ID"
                 sh "docker rmi docker-prod.imio.be/renocopro/mutual:latest"
                 sh "docker rmi docker-prod.imio.be/renocopro/mutual:$BUILD_ID"
-                echo "mco shell run 'docker pull docker-prod.imio.be/renocopro/mutual:$BUILD_ID' -I /^renocopro.imio.be/"
+                sh "mco shell run 'docker pull docker-prod.imio.be/renocopro/mutual:$BUILD_ID' -I /^site-prod10/"
+                sh "mco shell run 'systemctl restart renocopro.service' --tail -I /^site-prod10/"
             }
         }
     }
