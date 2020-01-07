@@ -55,7 +55,7 @@ pipeline {
                 sh "docker rmi docker-prod.imio.be/renocopro/mutual:latest"
                 sh "docker rmi docker-prod.imio.be/renocopro/mutual:$BUILD_ID"
                 sh "mco shell run 'docker pull docker-prod.imio.be/renocopro/mutual:$BUILD_ID' -I /^site-prod10/"
-                sh "mco shell run 'systemctl restart website-liege_renocopro.service' --tail -I /^site-prod10/"
+                sh "mco shell run 'systemctl reload website-liege_renocopro.service' --tail -I /^site-prod10/"
             }
         }
     }
